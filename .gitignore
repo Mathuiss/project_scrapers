@@ -7,6 +7,8 @@ __pycache__/
 *.so
 
 *.npy
+.*
+__*
 
 # Distribution / packaging
 .Python
