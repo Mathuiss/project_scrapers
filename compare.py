@@ -14,6 +14,28 @@ def normalize(data):
     return data[columns_to_normalize].to_numpy()
 
 
+def preprocess(df):
+    for i in range(len(df)):
+        r = df.iloc[i]["R_fighter"]
+        b = df.iloc[i]["B_fighter"]
+        count = len(df[(df["R_fighter"] == r) & (df["B_fighter"] == b)])
+
+        if count > 1:
+            c = 0
+            for n in range(len(df)):
+                if df.iloc[n]["R_fighter"] == r and df.iloc[n]["B_fighter"] == b:
+                    df.at[n, "R_fighter"] = f"{r}_{c}"
+                    df.at[n, "B_fighter"] = f"{b}_{c}"
+                    c += 1
+
+        if df.iloc[i]["Win"] == "Red":
+            df.at[i, "Win"] = 1
+        elif df.iloc[i]["Win"] == "Blue":
+            df.at[i, "Win"] = 0
+
+    return df
+
+
 def present(pair, opposite):
     for i in range(len(opposite)):
         if pair[0] == opposite.iloc[i]["R_fighter"] and pair[1] == opposite.iloc[i]["B_fighter"]:
@@ -23,15 +45,16 @@ def present(pair, opposite):
 
 
 def arr_compare(fights, odds):
+    fights = preprocess(fights)
+    odds = preprocess(odds)
+
     drop_fights = []
     drop_odds = []
 
-    print("Checking if fights in odds")
     for i in range(len(fights)):
         if not present([fights.iloc[i]["R_fighter"], fights.iloc[i]["B_fighter"]], odds):
             drop_fights.append(i)
 
-    print("Checking if odds in fights")
     for i in range(len(odds)):
         if not present([odds.iloc[i]["R_fighter"], odds.iloc[i]["B_fighter"]], fights):
             drop_odds.append(i)
@@ -48,15 +71,16 @@ def arr_compare(fights, odds):
 def predict_compare(model, x, y, odds):
     results = []
     predictions = model.predict(x)
-    predictions = predictions.reshape((-1, 1))
+    predictions = np.array(predictions).reshape((-1, 1))
 
     for i in range(len(predictions)):
-        pred = predictions[i]
-        odd = odds.iloc[i]["R_Implied_probability"]
+        pred = predictions[i, 0]
         r = odds.iloc[i]["R_fighter"]
         b = odds.iloc[i]["B_fighter"]
+        print(f"r: {r}, b: {b}")
+        odd = odds.iloc[i]["R_Implied_probability"]
         win = y.iloc[i]
-        print(f"R: {r}, B: {b}, ACTUAL: {win}, AI: {pred}, BOOKIES: {odd}")
+        # print(f"R: {r}, B: {b}, ACTUAL: {win}, AI: {pred}, BOOKIES: {odd}")
         results.append({"R": r, "B": b, "ACTUAL": win, "AI": pred, "BOOKIES": odd})
 
     return results
@@ -81,6 +105,7 @@ def main(name):
     fight_odds.reset_index(drop=True, inplace=True)
 
     ufc_data = ufc_data.rename(columns={"Name": "R_fighter", "Name.1": "B_fighter"})
+    fight_odds = fight_odds.rename(columns={"Winner": "Win"})
     ufc_data, fight_odds = arr_compare(ufc_data, fight_odds)
 
     ufc_data.reset_index(drop=True, inplace=True)
