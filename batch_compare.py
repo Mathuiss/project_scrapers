@@ -11,23 +11,43 @@
 
 import pandas as pd
 import compare
+import gc
 
-results = pd.read_csv("results.csv")
 
-with open("analysis.csv", "w") as f:
-    f.write("red,blue,actual,ai,ai_err,bookies,bookies_err\n")
+def is_present(red, blue, data, current_index):
+    for i in range(current_index):
+        if red == data[i]["R"] and blue == data[i]["B"]:
+            return True
 
-    for i in range(len(results)):
-        name = results.iloc[i]["name"]
-        analysis = compare.main(name)
+    del(red, blue, data, current_index)
+    return False
 
-        for n in range(len(analysis)):
-            r = analysis[n]["R"]
-            b = analysis[n]["B"]
-            actual = analysis[n]["ACTUAL"]
-            ai = analysis[n]["AI"]
-            ai_err = abs(actual - ai)
-            bookies = analysis[n]["BOOKIES"]
-            bookies_err = abs(actual - bookies)
 
-            f.write(f"{r},{b},{actual},{ai},{ai_err},{bookies},{bookies_err}\n")
+def main():
+    gc.set_threshold(25, 2, 2)
+    results = pd.read_csv("results.csv")
+
+    with open("analysis2.csv", "w") as f:
+        f.write("red,blue,actual,ai,ai_err,bookies,bookies_err\n")
+
+        for i in range(len(results)):
+            name = results.iloc[i]["name"]
+            analysis = compare.main(name)
+
+            for n in range(len(analysis)):
+                r = analysis[n]["R"]
+                b = analysis[n]["B"]
+                actual = analysis[n]["ACTUAL"]
+                ai = analysis[n]["AI"]
+                ai_err = abs(actual - ai)
+                bookies = analysis[n]["BOOKIES"]
+                bookies_err = abs(actual - bookies)
+
+                if not is_present(r, b, analysis, i):
+                    f.write(f"{r},{b},{actual},{ai},{ai_err},{bookies},{bookies_err}\n")
+
+                gc.collect()
+
+
+if __name__ == "__main__":
+    main()

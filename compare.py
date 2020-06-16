@@ -11,6 +11,7 @@ def normalize(data):
     columns_to_normalize = columns_to_normalize.drop(["R_fighter", "Stance", "DOB", "B_fighter", "Stance.1", "DOB.1", "Win"])
     data[columns_to_normalize] = data[columns_to_normalize].apply(lambda x: (x - x.min()) / (x.max() - x.min()))
     data[columns_to_normalize] = data[columns_to_normalize].fillna(0)
+
     return data[columns_to_normalize].to_numpy()
 
 
@@ -77,10 +78,9 @@ def predict_compare(model, x, y, odds):
         pred = predictions[i, 0]
         r = odds.iloc[i]["R_fighter"]
         b = odds.iloc[i]["B_fighter"]
-        print(f"r: {r}, b: {b}")
         odd = odds.iloc[i]["R_Implied_probability"]
         win = y.iloc[i]
-        # print(f"R: {r}, B: {b}, ACTUAL: {win}, AI: {pred}, BOOKIES: {odd}")
+        print(f"R: {r}, B: {b}, ACTUAL: {win}, AI: {pred}, BOOKIES: {odd}")
         results.append({"R": r, "B": b, "ACTUAL": win, "AI": pred, "BOOKIES": odd})
 
     return results
@@ -112,7 +112,9 @@ def main(name):
     fight_odds.reset_index(drop=True, inplace=True)
 
     x = normalize(ufc_data)
-    return predict_compare(load_model("models/small_model4.h5"), x, ufc_data["Win"], fight_odds)
+    model = load_model("models/small_model4.h5")
+
+    return predict_compare(model, x, ufc_data["Win"], fight_odds)
 
 
 if __name__ == "__main__":
