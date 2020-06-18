@@ -11,7 +11,7 @@ The first thing we need to do is pre-process the data. This must be done because
 
 ## Pre-Processing
 
-### Fight data
+### Fight Data
 
 Before we can start to create a model, we need to take a thorough look at our data set. The file is called ```ufc-fights-model.csv``` and can be found [here](https://github.com/Mathuiss/project_scrapers/blob/master/UFC-data/ufc-fights-model.csv). This file contains fight metrics of 3139 fights. Most of the features can directly be normalized by scaling between 1 and 0. The column ```stance```, however, must be hot-one encoded. The last column ```Win```, contains our labels ```y```. The labels are already encoded ```1 or 0```, which is nice, since we can use binary crossentropy to classify fights.
 
@@ -142,7 +142,7 @@ The script loads the model and the data, and then proceeds to call ```model.pred
 Comparing is done with the ```compare.py``` script. The implementation can be found [here](https://github.com/Mathuiss/project_scrapers/blob/master/compare.py).
 
 
-### The data
+### The Data
 
 In essence we are comparing two data sets with eachother. We are comparing the results of the ```predict.py``` script with the odds of the bookmakers. We want to see if there is a difference between the models prediction, which is entirely skill-based, and the bookies predictions, which can be based on other factors as well, like match fixing. We will also be able to see if both the AI and the bookies get it wrong. This means that the problem is neither the skill of the fighter, or bookmakers bribing fighters to lose a certain match. The data set used in this experiment is ```fightodds.csv```, which can be found [here](https://github.com/Mathuiss/project_scrapers/blob/master/UFC-data/fightodds.csv).
 
@@ -199,7 +199,36 @@ def predict_compare(model, x, y, odds):
 
 ## Analysis
 
-Analysis is done in the ```dashboard.ipynb``` file. The implementation can be found [here]()
+Analysis is done in the ```dashboard.ipynb``` file. The implementation can be found [here](https://github.com/Mathuiss/project_scrapers/blob/master/dashboard.ipynb).
+
+### The Data
+
+The data set, contained by ```analysis.csv``` is actually double. This is because we compare each fighter. If a fighter a fights against fighter b, we will get all matches for fighter a. If we later in the data set encounter fighter b, we will inevitably find the fight between fighter a and fighter b. This means that we have to clean up the data first.
+
+### The Dashboard
+
+The removing of the double items in the data set is done by a cell in the ```dashboard.ipynb``` file, like so:
+
+```python
+df = pd.read_csv("analysis.csv")
+remove = []
+
+for i in range(len(df)):
+    r = df.iloc[i]["red"]
+    b = df.iloc[i]["blue"]
+
+    remove_at = df[(df["red"] == r) & (df["blue"] == b)].index.max()
+    
+    if remove_at not in remove:
+        remove.append(remove_at)
+
+df = df.drop(remove)
+df.to_csv("analysis2.csv")
+
+print(df.head())
+```
+
+Something interesting happends when we only look at fights which wrongly predicted by the AI.
 
 Match Fixing Propability
 ![Match Fixing Propability](https://media.discordapp.net/attachments/708243527389151254/723174530801205249/results_analysis.png?width=828&height=677)
