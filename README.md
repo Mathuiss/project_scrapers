@@ -37,3 +37,9 @@ Normalizing the data is done by first stripping the columns that have no impact 
 ufc_data[columns_to_normalize] = ufc_data[columns_to_normalize].apply(lambda x: (x - x.min()) / (x.max() - x.min()))
 ```
 
+The last step is to split the data into training features, testing features, training labels and testing labels. Luckily ```sklearn.model_selection``` contains a function ```train_test_split()```, which can do this work for us. The function returns a tuple and takes the entire data set like so:
+
+```python
+x_train, x_test, y_train, y_test = model_selection.train_test_split(x, y, test_size=ratio, random_state=2020)
+```
+
