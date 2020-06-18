@@ -107,3 +107,23 @@ Loss
 ## Comparing
 
 Comparing is a rather difficult process. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Analysis
+
+Match Fixing Propability
+![Match Fixing Propability](https://media.discordapp.net/attachments/708243527389151254/723174530801205249/results_analysis.png?width=828&height=677)
+
+
+
