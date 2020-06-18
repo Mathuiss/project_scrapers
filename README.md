@@ -56,8 +56,7 @@ np.save(f"models/{name}y_test",  y_test)
 
 ## Training
 
-The training of the model is done in the ```train.py``` script.
-The implementation can be found [here](https://github.com/Mathuiss/project_scrapers/blob/master/train.py).
+The training of the model is done in the ```train.py``` script. The implementation can be found [here](https://github.com/Mathuiss/project_scrapers/blob/master/train.py).
 
 The steps taken in this scripts are as follows:
 - The training and testing data are loaded
@@ -104,23 +103,103 @@ Loss
 ![Training Loss](https://cdn.discordapp.com/attachments/708243527389151254/723230679269245039/loss.svg)
 
 
+## Predicting
+
+Predicting is done with the ```predict.py``` script. The implementation can be found [here](https://github.com/Mathuiss/project_scrapers/blob/master/predict.py)
+
+The ```predict.py``` script takes an argument; name. This name can also be empty, in which case the script will predict all fighters within the preprocessed data set. The script will only load preprocessed data, so if you want to predict a fighter, you need to first preprocess that fighter. An example could be:
+
+```bash
+python preprocess.py "Conor McGregor"
+python predict.py "Conor McGregor"
+```
+
+The script loads the model and the data, and then proceeds to call ```model.predict()``` on each data point. This will result in a prediction between ```0 and 1```. The script will also calculate error, the accuracy, the hits and the misses, like so:
+
+```python
+ for i in range(len(arr_pred)):
+        pred = arr_pred[i]
+        label = y[i]
+        error = abs(label - pred)
+        print(f"Actual: {label}     Prediction: {pred}      Error: {error}")
+
+        if error < 0.5:
+            print("CORRECT")
+            correct += 1
+        else:
+            print("MISS")
+            fault += 1
+
+    print("##########################################")
+    print(f"Correct: {correct}      Fault: {fault}")
+    print(f"Accuracy: {correct / len(arr_pred)}")
+    return (correct, fault, correct / len(arr_pred))
+```
+
+
 ## Comparing
 
-Comparing is a rather difficult process. 
+Comparing is done with the ```compare.py``` script. The implementation can be found [here](https://github.com/Mathuiss/project_scrapers/blob/master/compare.py).
 
 
+### The data
+
+In essence we are comparing two data sets with eachother. We are comparing the results of the ```predict.py``` script with the odds of the bookmakers. We want to see if there is a difference between the models prediction, which is entirely skill-based, and the bookies predictions, which can be based on other factors as well, like match fixing. We will also be able to see if both the AI and the bookies get it wrong. This means that the problem is neither the skill of the fighter, or bookmakers bribing fighters to lose a certain match. The data set used in this experiment is ```fightodds.csv```, which can be found [here](https://github.com/Mathuiss/project_scrapers/blob/master/UFC-data/fightodds.csv).
 
 
+### Compare
 
+Comparing is a rather difficult process. We need to go through the matches of a fighter, and for each match, check if the match is also in the other data set. If that is not the case we drop the fight, else we can use it in our comparison. This is done by calling ```arr_compare(fights, odds)```. This function will loop through the fights, and call the ```present(pair, opposite)``` function like so:
 
+```python
+for i in range(len(fights)):
+        if not present([fights.iloc[i]["R_fighter"], fights.iloc[i]["B_fighter"]], odds):
+            drop_fights.append(i)
 
+    for i in range(len(odds)):
+        if not present([odds.iloc[i]["R_fighter"], odds.iloc[i]["B_fighter"]], fights):
+            drop_odds.append(i)
+```
 
+NOTE: This is done for both fights and odds, since some fights are not in odds, but some odds are not in fights.
 
+After making the lists equal, re-index the lists. This way we can iterate through one list and guarantee that we know where we all in the other list.
 
+We then continue to call ```x = normalize(ufc_data)``` in order to create a normalized data set, which can be fet into a neural network. Normalizing the data is slightly different than in the ```preprocessor.py``` script, hence the seperate function. The normalize function in our case also calls ```fillna()```, and converts the data to a ```numpy.array()```, like so:
 
+```python
+columns_to_normalize = data.columns
+columns_to_normalize = columns_to_normalize.drop(["R_fighter", "Stance", "DOB", "B_fighter", "Stance.1", "DOB.1", "Win"])
+data[columns_to_normalize] = data[columns_to_normalize].apply(lambda x: (x - x.min()) / (x.max() - x.min()))
+data[columns_to_normalize] = data[columns_to_normalize].fillna(0)
+
+return data[columns_to_normalize].to_numpy()
+```
+
+Lastly we call ```predict_compare()```, which will predict the match, and compare the results. This function is also slightly different from the ```predict.py``` script because it writes the data to the ```analysis.csv``` file, like so:
+
+```python
+def predict_compare(model, x, y, odds):
+    results = []
+    predictions = model.predict(x)
+    predictions = np.array(predictions).reshape((-1, 1))
+
+    for i in range(len(predictions)):
+        pred = predictions[i, 0]
+        r = odds.iloc[i]["R_fighter"]
+        b = odds.iloc[i]["B_fighter"]
+        odd = odds.iloc[i]["R_Implied_probability"]
+        win = y.iloc[i]
+        print(f"R: {r}, B: {b}, ACTUAL: {win}, AI: {pred}, BOOKIES: {odd}")
+        results.append({"R": r, "B": b, "ACTUAL": win, "AI": pred, "BOOKIES": odd})
+
+    return results
+```
 
 
 ## Analysis
+
+Analysis is done in the ```dashboard.ipynb``` file. The implementation can be found [here]()
 
 Match Fixing Propability
 ![Match Fixing Propability](https://media.discordapp.net/attachments/708243527389151254/723174530801205249/results_analysis.png?width=828&height=677)
