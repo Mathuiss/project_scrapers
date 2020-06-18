@@ -98,7 +98,7 @@ NOTE: This is not the model used in the data analysis. Even though this model pe
 Next, the model is trained and the results are stored in the ```arr_metrics``` variable. The model is also saved using the ```model.save()``` function. The last thing this script does, is evaluating the training by using ```matplotlib.pyplot``` to plot the ```history``` object in the ```arr_metrics``` variable. This will look something like this:
 
 Accuracy
-!Training Accuracy](https://cdn.discordapp.com/attachments/708243527389151254/723230779240611880/acc.svg)
+![Training Accuracy](https://cdn.discordapp.com/attachments/708243527389151254/723230779240611880/acc.svg)
 
 Loss
 ![Training Loss](https://cdn.discordapp.com/attachments/708243527389151254/723230679269245039/loss.svg)
@@ -106,4 +106,4 @@ Loss
 
 ## Comparing
 
-
+Comparing is a rather difficult process. 
