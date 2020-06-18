@@ -228,10 +228,44 @@ df.to_csv("analysis2.csv")
 print(df.head())
 ```
 
+If we use SandDance to plot the data set we get this image:
+
+![DataSet](https://media.discordapp.net/attachments/708243527389151254/723102249299083294/unknown.png?width=757&height=677)
+
+We can see that the AI is fairly certain about most fights, which are all in the left candle. All the candles right of the middle are wrong predictions. Of the predictions on the right candle, the AI was also fairly certain. Even though the AI has a %73,6 accuracy, there is still a significant candle of wrong predictions on the right. Contained within this candle are dark green spots. These are fights, which were wrongly predicted by both the AI and the bookmakers. Hence, these are fights we are interested in.
+
+
 Something interesting happends when we only look at fights which wrongly predicted by the AI.
 
 Match Fixing Propability
 ![Match Fixing Propability](https://media.discordapp.net/attachments/708243527389151254/723174530801205249/results_analysis.png?width=828&height=677)
 
+Taking a look ath the above graph, we can see that there is an area in red-ish colors, where the AI was not that far off. The green spots represent fights which are very wrongly predicted by the AI. The x axis represents the error of the bookmakers. The more you go to the right, the more wrong the bookmakers get. Using this information we can draw ares, where we can estimate there is a lower chance of match-fixing, and where there is a higher chance of match-fixing.
 
+The last thing the ```dashboard.ipynb``` file does, is it gives us a list of fighters, and how often they occur in fights that are wrongly predicted by both the AI and the bookmakers, like so:
+
+```python
+fighters = pd.DataFrame(columns=["count"])
+
+for i in range(len(df)):
+    # f = ""
+    # if df.iloc[i]["actual"] == 1:
+    #     f = df.iloc[i]["blue"]
+    # else:
+    #     f = df.iloc[i]["red"]
+
+    f = df.iloc[i]["red"]
+
+    if f in fighters.index.values:
+        fighters.at[f, "count"] += 1
+    else:
+        fighters.at[f, "count"] = 1
+
+fighters = fighters.sort_values(by=["count"], ascending=False)
+fighters.to_csv("analysis6.csv")
+
+print(fighters.head(30))
+```
+
+This gives us a list of names and counts, which can be used to further investigate the possibility of match fixing. This, ofcourse, has to be done in real-life, and cannot be done by the computer alone. Machine learning, however, is a powerfull tool to filter through large amounts of data, and build statistical models in a relatively easy fashion. At least for humans.
 
