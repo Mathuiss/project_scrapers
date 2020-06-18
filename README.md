@@ -8,6 +8,7 @@ We are trying to gain a picture of what the chanses of match fixing in the UFC a
 
 The first thing we need to do is pre-process the data. This must be done because we need to train an AI, which can predict matches. Once preprocessing is done, we can start training the model. After the model is trained optimally, we can use the model to predict all fights of a certain fighter, or all fights of all fighters. We use the results from that to build a new dataset, called ```results.csv```, which can be found [here](https://github.com/Mathuiss/project_scrapers/blob/master/results.csv). These results can be used to track fighters that are predictable, or fighters that are unpredictable. The next step is to compare the predictions of the AI, with the predictions of the bookmakers. The problem with this however, is that not all fights are contained within both datasets. In the ```compare.py```, we will first extract all the fights that occur in both datasets, and then compare the results with bookmakers predictions. After we have done that we have an ```analysis.csv``` file. This dataset contains all the comparisons between each prediction, and the bookmakers odds. The final step is to use the ```dashboard.ipynb``` file to filter all usefull data, and search for match fixing, by looking for irregularities in the data. For data visualisation SandDance is used. This is a tool which can generate graohs and other visuals from ```.csv``` files.
 
+
 ## Pre-Processing
 
 ### Fight data
@@ -44,9 +45,51 @@ x_train, x_test, y_train, y_test = model_selection.train_test_split(x, y, test_s
 ```
 
 The very last step is to use the ```numpy.save()``` method to save the preprocessed data sets to the hard drive, like so:
+
 ```python
 np.save(f"models/{name}x_train", x_train)
 np.save(f"models/{name}x_test",  x_test)
 np.save(f"models/{name}y_train", y_train)
 np.save(f"models/{name}y_test",  y_test)
 ```
+
+
+## Training
+
+The training of the model is done in the ```train.py``` script.
+The implementation can be found [here](https://github.com/Mathuiss/project_scrapers/blob/master/train.py).
+
+The steps taken in this scripts are as follows:
+- The training and testing data are loaded
+- The model is defined and compiled
+- The model is trained
+- The training is evaluated
+
+Loading the data from the hard drive is done with the ```numpy.load()``` method. The training data is saved in 4 different variables like so:
+
+```python
+x_train = np.load("models/x_train.npy")
+x_test = np.load("models/x_test.npy")
+y_train = np.load("models/y_train.npy")
+y_test = np.load("models/y_test.npy")
+```
+
+The next step if defining and compiling the model. This is done with the ```keras``` library. The model used in this project was from the type ```keras.model.Sequential()```. The model is defined like so:
+
+```python
+# Building the model
+model = Sequential()
+model.add(Dense(512, activation="relu", input_shape=(32,)))
+model.add(Dropout(0.8))
+model.add(Dense(256, activation="relu"))
+model.add(Dense(128, activation="relu"))
+model.add(Dropout(0.5))
+model.add(Dense(64, activation="relu"))
+model.add(Dense(32, activation="relu"))
+model.add(Dropout(0.2))
+model.add(Dense(1, activation="sigmoid"))
+
+# Compiling the model
+model.compile(loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"])
+```
+
