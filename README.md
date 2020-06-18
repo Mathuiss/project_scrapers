@@ -43,3 +43,10 @@ The last step is to split the data into training features, testing features, tra
 x_train, x_test, y_train, y_test = model_selection.train_test_split(x, y, test_size=ratio, random_state=2020)
 ```
 
+The very last step is to use the ```numpy.save()``` method to save the preprocessed data sets to the hard drive, like so:
+```python
+np.save(f"models/{name}x_train", x_train)
+np.save(f"models/{name}x_test",  x_test)
+np.save(f"models/{name}y_train", y_train)
+np.save(f"models/{name}y_test",  y_test)
+```
