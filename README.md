@@ -73,7 +73,7 @@ y_train = np.load("models/y_train.npy")
 y_test = np.load("models/y_test.npy")
 ```
 
-The next step if defining and compiling the model. This is done with the ```keras``` library. The model used in this project was from the type ```keras.model.Sequential()```. The model is defined like so:
+The next step if defining and compiling the model. This is done with the ```keras``` library. The model used in this project was of the type ```keras.model.Sequential()```. The model is defined like so:
 
 ```python
 # Building the model
