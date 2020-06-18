@@ -14,15 +14,6 @@ import compare
 import gc
 
 
-def is_present(red, blue, data, current_index):
-    for i in range(current_index):
-        if red == data[i]["R"] and blue == data[i]["B"]:
-            return True
-
-    del(red, blue, data, current_index)
-    return False
-
-
 def main():
     gc.set_threshold(25, 2, 2)
     results = pd.read_csv("results.csv")
@@ -42,9 +33,6 @@ def main():
                 ai_err = abs(actual - ai)
                 bookies = analysis[n]["BOOKIES"]
                 bookies_err = abs(actual - bookies)
-
-                if not is_present(r, b, analysis, i):
-                    f.write(f"{r},{b},{actual},{ai},{ai_err},{bookies},{bookies_err}\n")
 
                 gc.collect()
 
