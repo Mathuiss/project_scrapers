@@ -93,3 +93,9 @@ model.add(Dense(1, activation="sigmoid"))
 model.compile(loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"])
 ```
 
+NOTE: This is not the model used in the data analysis. Even though this model performs really well, the ```small_model2.h5``` model performed even better.
+
+Next, the model is trained and the results are stored in the ```arr_metrics``` variable. The model is also saved using the ```model.save()``` function. The last thing this script does, is evaluating the training by using ```matplotlib.pyplot``` to plot the ```history``` object in the ```arr_metrics``` variable. This will look something like this:
+
+![Training Accuracy](https://discordapp.com/channels/708243527389151250/708243527389151254/723230779395801146)
+![Training Loss](https://cdn.discordapp.com/attachments/708243527389151254/723230679269245039/loss.svg)
