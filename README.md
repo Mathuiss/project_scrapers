@@ -14,4 +14,26 @@ The first thing we need to do is pre-process the data. This must be done because
 
 Before we can start to create a model, we need to take a thorough look at our data set. The file is called ```ufc-fights-model.csv``` and can be found [here](https://github.com/Mathuiss/project_scrapers/blob/master/UFC-data/ufc-fights-model.csv). This file contains fight metrics of 3139 fights. Most of the features can directly be normalized by scaling between 1 and 0. The column ```stance```, however, must be hot-one encoded. The last column ```Win```, contains our labels ```y```. The labels are already encoded ```1 or 0```, which is nice, since we can use binary crossentropy to classify fights.
 
-### 
+### Preprocessor
+
+The pre-processing work is done by the ```preprocessor.py``` script.
+The implementation can be found [here](https://github.com/Mathuiss/project_scrapers/blob/master/preprocessor.py).
+
+The script can be called on the command line via ```python preprocessor.py "Fighter Name"```, or if you want to preprocess all data, just omit the last argument; name.
+
+Pre-processing consists of a few steps:
+- Loading the data
+- Hot-one encoding the data
+- Normalizing the data
+- Splitting the data into training and testing features and labels
+
+Loading the data is done in the ```load()``` function. If a name is given, the script will load all fights where either the red or the blue fighter has that name, else it will simply load all fights. The reason preprocessing is done this way, is because after we have trained the model, we will want to predict a specific fighter at a time. We therefore must be able to pre-process data for that specific fighter.
+
+Hot-one encoding the data is done by adding a new column for each stance in the ```stance``` column. This is done for each fighter, so ```4 stances x 2 fighters``` is a total of ```8``` new columns. After this we append a ```1``` to the current corresponding column, and a ```0``` to all other columns.
+
+Normalizing the data is done by first stripping the columns that have no impact on the outcome of the fight what so ever, or features that have been incorporated in to data set in another maner. The ```Name, Date of Birth``` and the ```stance``` columns are dropped. We then proceed to apply the normalizing formula to each value in the data set, like so:
+
+```python
+ufc_data[columns_to_normalize] = ufc_data[columns_to_normalize].apply(lambda x: (x - x.min()) / (x.max() - x.min()))
+```
+
